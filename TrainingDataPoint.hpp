@@ -2,14 +2,14 @@
 
 // saves an input for the first layer and expected output of the last layer
 // needed for training
-class Training_data_point
+class TrainingDataPoint
 {
 public:
-    std::vector<double> input;
-    std::vector<double> expected_output;
-    Training_data_point();
+    std::vector<long double> input;
+    std::vector<long double> expected_output;
+    TrainingDataPoint();
 
-    Training_data_point(std::vector<double> input, std::vector<double> expected_output)
+    TrainingDataPoint(std::vector<long double> input, std::vector<long double> expected_output)
     {
         this->input = input;
         this->expected_output = expected_output;

@@ -3,19 +3,19 @@
 class Activation_function
 {
 public:
-    virtual double activate(double &value);
-    virtual double derivate(double &value);
+    virtual long double activate(double &value);
+    virtual long double derivate(double &value);
 };
 
 class sigmoid_activation : public Activation_function
 {
 public:
-    double activate(double &value)
+    long double activate(long double &value)
     {
         // tanh from math.h is also an option
         return 1 / (1 + exp(-value));
     }
-    double derivate(double &value)
+    long double derivate(long double &value)
     {
         double a = activate(value);
         return a * (1 - a);
@@ -24,7 +24,7 @@ public:
 class hard_sigmoid_activation : public Activation_function
 {
 public:
-    double activate(double &value)
+    long double activate(long double &value)
     {
         if (value > 3)
         {
@@ -36,7 +36,7 @@ public:
         }
         return value * 0.166 + 0.5;
     }
-    double derivate(double &value)
+    long double derivate(long double &value)
     {
         if (value > 3 || value < -3)
         {
@@ -48,7 +48,7 @@ public:
 class relu_activation : public Activation_function
 {
 public:
-    double activate(double &value)
+    long double activate(long double &value)
     {
         if (value < 0)
         {
@@ -56,7 +56,7 @@ public:
         }
         return value;
     }
-    double derivate(double &value)
+    long double derivate(long double &value)
     {
         if (value < 0)
         {
@@ -68,7 +68,7 @@ public:
 class leaky_relu_activation : public Activation_function
 {
 public:
-    double activate(double &value)
+    long double activate(long double &value)
     {
         if (value < 0)
         {
@@ -76,7 +76,7 @@ public:
         }
         return value;
     }
-    double derivate(double &value)
+    long double derivate(long double &value)
     {
         if (value < 0)
         {
@@ -85,19 +85,19 @@ public:
         return 1;
     }
 };
-double node_cost_function(std::vector<double> predictedOutputs, std::vector<double> expectedOutputs)
+long double node_cost_function(std::vector<long double> predictedOutputs, std::vector<long double> expectedOutputs)
 {
     // cost is sum (for all x,y pairs) of: 0.5 * (x-y)^2
-    double cost = 0;
+    long double cost = 0;
     for (int i = 0; i < predictedOutputs.size(); i++)
     {
-        double error = predictedOutputs[i] - expectedOutputs[i];
+        long double error = predictedOutputs[i] - expectedOutputs[i];
         cost += error * error;
     }
     return 0.5 * cost;
 }
 
-double node_cost_derivative(double predictedOutput, double expectedOutput)
+long double node_cost_derivative(long double predictedOutput, long double expectedOutput)
 {
     return predictedOutput - expectedOutput;
 }

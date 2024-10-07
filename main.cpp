@@ -1,7 +1,8 @@
+#pragma GCC optimize("Ofast")
 #include "neural_network.hpp"
 
-#define TRAINING_DATA_AMOUNT 1000
-std::vector<Training_data_point> training_data;
+#define TRAINING_DATA_AMOUNT 1024
+std::vector<TrainingDataPoint> training_data;
 
 void generage_training_data()
 {
@@ -10,18 +11,18 @@ void generage_training_data()
     training_data.clear();
     for (int i = 0; i < TRAINING_DATA_AMOUNT; ++i)
     {
-        double rand = random_double(-3, 3);
-        double expected_output = std::sin(rand * 5);
+        long double rand = random_ldouble(-3, 3);
+        long double expected_output = std::sin(rand * 5);
         training_data_file << rand << ", " << expected_output << std::endl;
 
-        training_data.push_back(Training_data_point({rand}, {expected_output}));
+        training_data.push_back(TrainingDataPoint({rand}, {expected_output}));
     }
     training_data_file.close();
 }
 void save_output(Network *n)
 {
     std::ofstream out_file("output/output.csv");
-    for (double i = -3; i < 3; i += 0.01)
+    for (long double i = -3; i < 3; i += 0.01)
     {
         out_file << i << ", " << n->calculate({i})[0] << std::endl;
     }
@@ -33,7 +34,7 @@ void save_output(Network *n)
 void parallel_training(bool *loop_condition, std::mutex *mutex, bool new_data, Network *n)
 {
     int i = 0;
-    double cost;
+    long double average_cost;
     while (true)
     {
         mutex->lock();
@@ -46,15 +47,15 @@ void parallel_training(bool *loop_condition, std::mutex *mutex, bool new_data, N
 
         if (new_data)
             generage_training_data();
-        cost = n->train(training_data);
+        average_cost = n->train(training_data); // TODO: return average cost
         // if (i % 10 == 0)
-        std::cout << "iteration: " << i++ << " cost: " << cost << std::endl;
+        std::cout << "iteration: " << i++ << " cost: " << average_cost << std::endl;
     }
 }
 
 int main()
 {
-    Network n(1, {20, 20, 20, 20, 1});
+    Network n(1, {20, 20, 1});
 
     generage_training_data();
     std::cout << "average cost of training material: " << n.average_cost(training_data) << std::endl
@@ -82,10 +83,10 @@ int main()
         {
             std::cout << "enter a double" << std::endl;
             std::cin >> input;
-            double num = 0;
+            long double num = 0;
             try
             {
-                num = std::stod(input);
+                num = std::stold(input);
                 std::cout << "output of the network: " << n.calculate({num})[0] << std::endl
                           << std::endl;
             }
@@ -98,10 +99,10 @@ int main()
         {
             std::cout << "What do you want to change the leanring rate to?" << std::endl;
             std::cin >> input;
-            double num = 0;
+            long double num = 0;
             try
             {
-                num = std::stod(input);
+                num = std::stold(input);
                 parameters.initial_learning_rate = num;
             }
             catch (const std::invalid_argument &e)
@@ -135,7 +136,7 @@ int main()
 
             std::cout << "average cost of training material (previously): " << n.average_cost(training_data) << std::endl;
 
-            double cost = 1e+300;
+            long double cost = 1e+300;
             if (num == -1)
             {
                 bool loop_condition = true;
