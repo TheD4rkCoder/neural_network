@@ -13,7 +13,7 @@ void generage_training_data()
     for (int i = 0; i < TRAINING_DATA_AMOUNT; ++i)
     {
         long double rand = random_ldouble(-3, 3);
-        long double expected_output = std::sin(rand * 5);
+        long double expected_output = std::sin(rand);
         training_data_file << rand << ", " << expected_output << std::endl;
 
         training_data.push_back(TrainingDataPoint({rand}, {expected_output}));
@@ -39,7 +39,6 @@ void interruptable_training(bool *loop_condition, std::mutex *mutex, bool new_da
     mutex->lock();
     while (*loop_condition)
     {
-
         mutex->unlock();
         if (new_data)
             generage_training_data();
@@ -49,13 +48,12 @@ void interruptable_training(bool *loop_condition, std::mutex *mutex, bool new_da
 
         mutex->lock();
     }
-
     mutex->unlock();
 }
 
 int main()
 {
-    Network n(INPUT_NODES_AMOUNT, {10, 5, 13, 5, 1});
+    Network n(INPUT_NODES_AMOUNT, {3, 1});
 
     generage_training_data();
     std::cout << "average cost of training material: " << n.average_cost_of_training_data(training_data) << std::endl
@@ -82,21 +80,21 @@ int main()
         else if (input == "i")
         {
             std::vector<long double> num(INPUT_NODES_AMOUNT);
-            try
+            for (uint32_t i = 0; i < num.size(); i++)
             {
-                for (uint32_t i = 0; i < num.size(); i++)
+                std::cout << "enter a double" << std::endl;
+                std::cin >> input;
+                try
                 {
-                    std::cout << "enter a double" << std::endl;
-                    std::cin >> input;
                     num[i] = std::stold(input);
                 }
-                std::cout << "output of the network: " << n.calculate(num)[0] << std::endl
-                          << std::endl;
+                catch (const std::invalid_argument &e)
+                {
+                    std::cerr << "Error: String '" << input << "' is not a valid double." << std::endl;
+                }
             }
-            catch (const std::invalid_argument &e)
-            {
-                std::cerr << "Error: String '" << input << "' is not a valid double." << std::endl;
-            }
+            std::cout << "output of the network: " << n.calculate(num)[0] << std::endl
+                      << std::endl;
         }
         else if (input == "e")
         {
@@ -142,19 +140,16 @@ int main()
                 bool loop_condition = true;
                 std::mutex mutex;
                 std::thread t(interruptable_training, &loop_condition, &mutex, new_data, &n);
-                char userInput;
+                std::getchar();
                 while (loop_condition)
                 {
-                    std::cout << "Enter 'q' to quit" << std::endl
+                    std::cout << "Press Enter to stop" << std::endl
                               << std::endl;
-                    std::cin >> userInput;
+                    std::getchar();
 
-                    if (userInput == 'q')
-                    {
-                        mutex.lock();
-                        loop_condition = false;
-                        mutex.unlock();
-                    }
+                    mutex.lock();
+                    loop_condition = false;
+                    mutex.unlock();
                 }
                 t.join();
             }

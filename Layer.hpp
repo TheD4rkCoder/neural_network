@@ -15,7 +15,7 @@ private:
         {
             for (uint32_t in = 0; in < input_nodes_amount; ++in)
             {
-                weights[in][out] = random_ldouble(-3, 3) / input_nodes_amount;
+                weights[in][out] = random_ldouble(-1, 1) / input_nodes_amount;
             }
         }
     }

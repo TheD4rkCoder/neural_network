@@ -30,13 +30,13 @@
 
 struct
 {
-    double initial_learning_rate = 0.2;
+    double initial_learning_rate = 0.02;
 
-    double learn_rate_decay = 0.9998;
-    uint32_t mini_batch_size = 32;
+    double learn_rate_decay = 0.9995;
+    uint32_t mini_batch_size = 1;
     double momentum = 0.9;
     double regularization = 0.1;
-    hard_sigmoid_activation activation;
+    relu_activation activation;
     // Cost
 } parameters;
 
@@ -45,7 +45,6 @@ std::default_random_engine generator;
 // Seed the engine (optional, but recommended for better randomness)
 long double random_ldouble(long double min, long double max)
 {
-
     // Create a distribution object for generating random doubles within the specified range
     std::uniform_real_distribution<long double> distribution(min, max);
 

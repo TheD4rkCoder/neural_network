@@ -7,6 +7,7 @@ public:
     long double derivate(double &value);
 };
 
+// doesn't work?
 class sigmoid_activation : public Activation_function
 {
 public:
