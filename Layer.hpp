@@ -20,7 +20,7 @@ private:
         }
     }
 
-    void update_gradients(std::vector<long double> node_derivatives)
+    void update_gradients(std::vector<long double> &node_derivatives)
     {
         for (uint32_t out = 0; out < output_nodes_amount; ++out)
         {
@@ -65,7 +65,7 @@ public:
         weights = std::vector<std::vector<long double>>(input_nodes_amount);
         biases = std::vector<long double>(output_nodes_amount);
         weight_cost_gradient = std::vector<std::vector<long double>>(input_nodes_amount);
-        bias_cost_gradient = std::vector<long double>(output_nodes_amount);
+        bias_cost_gradient = std::vector<long double>(output_nodes_amount, 0);
         for (uint32_t i = 0; i < input_nodes_amount; ++i)
         {
             weights[i] = std::vector<long double>(output_nodes_amount);
@@ -81,7 +81,7 @@ public:
         // TODO
     }
 
-    std::vector<long double> calculate_layer_result(std::vector<long double>& input)
+    std::vector<long double> calculate_layer_result(std::vector<long double> &input)
     {
         std::vector<long double> output = std::vector<long double>(output_nodes_amount);
         for (uint32_t out = 0; out < output_nodes_amount; ++out)

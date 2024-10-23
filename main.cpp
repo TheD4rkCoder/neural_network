@@ -55,7 +55,7 @@ void interruptable_training(bool *loop_condition, std::mutex *mutex, bool new_da
 
 int main()
 {
-    Network n(INPUT_NODES_AMOUNT, {3, 5, 13, 5, 1});
+    Network n(INPUT_NODES_AMOUNT, {10, 5, 13, 5, 1});
 
     generage_training_data();
     std::cout << "average cost of training material: " << n.average_cost_of_training_data(training_data) << std::endl
