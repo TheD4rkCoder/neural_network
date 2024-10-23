@@ -9,9 +9,9 @@ public:
     std::vector<long double> expected_output;
     TrainingDataPoint();
 
-    TrainingDataPoint(std::vector<long double> input, std::vector<long double> expected_output)
+    TrainingDataPoint(std::vector<long double> in, std::vector<long double> expected_out)
     {
-        this->input = input;
-        this->expected_output = expected_output;
+        input = in;
+        expected_output = expected_out;
     }
 };

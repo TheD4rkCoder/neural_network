@@ -2,6 +2,7 @@
 #include "neural_network.hpp"
 
 #define TRAINING_DATA_AMOUNT 1024
+#define INPUT_NODES_AMOUNT 1
 std::vector<TrainingDataPoint> training_data;
 
 void generage_training_data()
@@ -31,34 +32,33 @@ void save_output(Network *n)
               << std::endl;
     n->output_network("output/network_after.csv");
 }
-void parallel_training(bool *loop_condition, std::mutex *mutex, bool new_data, Network *n)
+void interruptable_training(bool *loop_condition, std::mutex *mutex, bool new_data, Network *n)
 {
     int i = 0;
     long double average_cost;
-    while (true)
+    mutex->lock();
+    while (*loop_condition)
     {
-        mutex->lock();
-        if (!*loop_condition)
-        {
-            mutex->unlock();
-            break;
-        }
-        mutex->unlock();
 
+        mutex->unlock();
         if (new_data)
             generage_training_data();
         average_cost = n->train(training_data); // TODO: return average cost
         // if (i % 10 == 0)
         std::cout << "iteration: " << i++ << " cost: " << average_cost << std::endl;
+
+        mutex->lock();
     }
+
+    mutex->unlock();
 }
 
 int main()
 {
-    Network n(1, {20, 20, 1});
+    Network n(INPUT_NODES_AMOUNT, {3, 5, 13, 5, 1});
 
     generage_training_data();
-    std::cout << "average cost of training material: " << n.average_cost(training_data) << std::endl
+    std::cout << "average cost of training material: " << n.average_cost_of_training_data(training_data) << std::endl
               << std::endl;
 
     n.output_network("output/network_before.csv");
@@ -67,11 +67,11 @@ int main()
     while (true)
     {
         std::cout << "g: generate new training data" << std::endl
-                  << "c: run new training cycle" << std::endl
+                  << "c: run new training cycles with the same data" << std::endl
                   << "cg: run new training cycles with newly generated data" << std::endl
-                  << "s: save output to output.csv" << std::endl
-                  << "e: edit learn rate" << std::endl
                   << "i: calculate manual input" << std::endl
+                  << "e: edit learn rate" << std::endl
+                  << "s: save output to output.csv" << std::endl
                   << "q: quit" << std::endl
                   << std::endl;
         std::cin >> input;
@@ -81,13 +81,16 @@ int main()
         }
         else if (input == "i")
         {
-            std::cout << "enter a double" << std::endl;
-            std::cin >> input;
-            long double num = 0;
+            std::vector<long double> num(INPUT_NODES_AMOUNT);
             try
             {
-                num = std::stold(input);
-                std::cout << "output of the network: " << n.calculate({num})[0] << std::endl
+                for (uint32_t i = 0; i < num.size(); i++)
+                {
+                    std::cout << "enter a double" << std::endl;
+                    std::cin >> input;
+                    num[i] = std::stold(input);
+                }
+                std::cout << "output of the network: " << n.calculate(num)[0] << std::endl
                           << std::endl;
             }
             catch (const std::invalid_argument &e)
@@ -99,10 +102,10 @@ int main()
         {
             std::cout << "What do you want to change the leanring rate to?" << std::endl;
             std::cin >> input;
-            long double num = 0;
+            double num;
             try
             {
-                num = std::stold(input);
+                num = std::stod(input);
                 parameters.initial_learning_rate = num;
             }
             catch (const std::invalid_argument &e)
@@ -113,7 +116,7 @@ int main()
         else if (input == "g")
         {
             generage_training_data();
-            std::cout << "average cost of new training material: " << n.average_cost(training_data) << std::endl;
+            std::cout << "average cost of new training material: " << n.average_cost_of_training_data(training_data) << std::endl;
             std::cout << "done generating training data" << std::endl
                       << std::endl;
         }
@@ -134,14 +137,11 @@ int main()
                 std::cerr << "Error: String '" << input << "' is not a valid integer." << std::endl;
             }
 
-            std::cout << "average cost of training material (previously): " << n.average_cost(training_data) << std::endl;
-
-            long double cost = 1e+300;
             if (num == -1)
             {
                 bool loop_condition = true;
                 std::mutex mutex;
-                std::thread t(parallel_training, &loop_condition, &mutex, new_data, &n);
+                std::thread t(interruptable_training, &loop_condition, &mutex, new_data, &n);
                 char userInput;
                 while (loop_condition)
                 {
@@ -164,12 +164,12 @@ int main()
                 {
                     if (new_data)
                         generage_training_data();
-                    cost = n.train(training_data);
+                    long double cost = n.train(training_data);
                     // if (i % 10 == 0)
                     std::cout << "iteration: " << i << " cost: " << cost << std::endl;
                 }
             }
-            std::cout << "average cost of training material: " << n.average_cost(training_data) << std::endl;
+            std::cout << "average cost of training material (after training): " << n.average_cost_of_training_data(training_data) << std::endl;
             std::cout << "learn rate: " << parameters.initial_learning_rate << std::endl;
             std::cout << "done training" << std::endl
                       << std::endl;

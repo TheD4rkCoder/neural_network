@@ -3,8 +3,8 @@
 class Activation_function
 {
 public:
-    virtual long double activate(double &value);
-    virtual long double derivate(double &value);
+    long double activate(double &value);
+    long double derivate(double &value);
 };
 
 class sigmoid_activation : public Activation_function
@@ -13,11 +13,11 @@ public:
     long double activate(long double &value)
     {
         // tanh from math.h is also an option
-        return 1 / (1 + exp(-value));
+        return 1 / (1 + exp(-(double)value));
     }
     long double derivate(long double &value)
     {
-        double a = activate(value);
+        long double a = activate(value);
         return a * (1 - a);
     }
 };
@@ -89,7 +89,7 @@ long double node_cost_function(std::vector<long double> predictedOutputs, std::v
 {
     // cost is sum (for all x,y pairs) of: 0.5 * (x-y)^2
     long double cost = 0;
-    for (int i = 0; i < predictedOutputs.size(); i++)
+    for (uint32_t i = 0; i < predictedOutputs.size(); i++)
     {
         long double error = predictedOutputs[i] - expectedOutputs[i];
         cost += error * error;

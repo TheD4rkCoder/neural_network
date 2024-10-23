@@ -30,13 +30,13 @@
 
 struct
 {
-    double initial_learning_rate = 0.1;
+    double initial_learning_rate = 0.2;
 
-    double learn_rate_decay = 0.99;
-    int mini_batch_size = 32;
+    double learn_rate_decay = 0.9998;
+    uint32_t mini_batch_size = 32;
     double momentum = 0.9;
     double regularization = 0.1;
-    leaky_relu_activation activation;
+    hard_sigmoid_activation activation;
     // Cost
 } parameters;
 
