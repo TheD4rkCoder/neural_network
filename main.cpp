@@ -12,8 +12,8 @@ void generage_training_data()
     training_data.clear();
     for (int i = 0; i < TRAINING_DATA_AMOUNT; ++i)
     {
-        long double rand = random_ldouble(-3, 3);
-        long double expected_output = std::sin(rand);
+        long double rand = random_ldouble(0, 1);
+        long double expected_output = 0.5 + 0.5 * std::sin(rand * 2 * 3.14 * 3);
         training_data_file << rand << ", " << expected_output << std::endl;
 
         training_data.push_back(TrainingDataPoint({rand}, {expected_output}));
@@ -23,7 +23,7 @@ void generage_training_data()
 void save_output(Network *n)
 {
     std::ofstream out_file("output/output.csv");
-    for (long double i = -3; i < 3; i += 0.01)
+    for (long double i = 0; i < 1; i += 0.0025)
     {
         out_file << i << ", " << n->calculate({i})[0] << std::endl;
     }
@@ -53,7 +53,7 @@ void interruptable_training(bool *loop_condition, std::mutex *mutex, bool new_da
 
 int main()
 {
-    Network n(INPUT_NODES_AMOUNT, {3, 1});
+    Network n(INPUT_NODES_AMOUNT, {13, 21, 13, 7, 1});
 
     generage_training_data();
     std::cout << "average cost of training material: " << n.average_cost_of_training_data(training_data) << std::endl

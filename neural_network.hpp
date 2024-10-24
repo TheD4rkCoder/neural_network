@@ -33,7 +33,7 @@ struct
     double initial_learning_rate = 0.02;
 
     double learn_rate_decay = 0.9995;
-    uint32_t mini_batch_size = 1;
+    uint32_t mini_batch_size = 1; // doesn't work
     double momentum = 0.9;
     double regularization = 0.1;
     relu_activation activation;
