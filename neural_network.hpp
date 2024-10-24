@@ -36,7 +36,7 @@ struct
     uint32_t mini_batch_size = 1; // doesn't work
     double momentum = 0.9;
     double regularization = 0.1;
-    relu_activation activation;
+    leaky_relu_activation activation;
     // Cost
 } parameters;
 

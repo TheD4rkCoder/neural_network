@@ -15,8 +15,9 @@ private:
         {
             for (uint32_t in = 0; in < input_nodes_amount; ++in)
             {
-                weights[in][out] = random_ldouble(-0.5, 0.5) / input_nodes_amount;
+                weights[in][out] = random_ldouble(-0.5, 0.5);
             }
+            biases[out] = random_ldouble(-0.5, 0.5);
         }
     }
 
@@ -63,7 +64,7 @@ public:
         input_nodes_amount = in_nodes_amount;
         output_nodes_amount = out_nodes_amount;
         weights = std::vector<std::vector<long double>>(input_nodes_amount);
-        biases = std::vector<long double>(output_nodes_amount, 0.5);
+        biases = std::vector<long double>(output_nodes_amount);
         weight_cost_gradient = std::vector<std::vector<long double>>(input_nodes_amount);
         bias_cost_gradient = std::vector<long double>(output_nodes_amount);
         for (uint32_t i = 0; i < input_nodes_amount; ++i)
