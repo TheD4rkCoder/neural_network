@@ -27,7 +27,7 @@ private:
         {
             for (uint32_t in = 0; in < input_nodes_amount; ++in)
             {
-                weight_cost_gradient[in][out] = last_inputs[in] * node_derivatives[out];
+                weight_cost_gradient[in][out] += last_inputs[in] * node_derivatives[out];
                 // if (weight_cost_gradient[in][out] > 5)
                 // {
                 //     weight_cost_gradient[in][out] = 5;
@@ -37,7 +37,7 @@ private:
                 //     weight_cost_gradient[in][out] = -5;
                 // }
             }
-            bias_cost_gradient[out] = node_derivatives[out];
+            bias_cost_gradient[out] += node_derivatives[out];
             // if (bias_cost_gradient[out] > 5)
             // {
             //     bias_cost_gradient[out] = 5;
@@ -65,8 +65,8 @@ public:
         output_nodes_amount = out_nodes_amount;
         weights = std::vector<std::vector<long double>>(input_nodes_amount);
         biases = std::vector<long double>(output_nodes_amount);
-        weight_cost_gradient = std::vector<std::vector<long double>>(input_nodes_amount);
-        bias_cost_gradient = std::vector<long double>(output_nodes_amount);
+        weight_cost_gradient = std::vector<std::vector<long double>>(input_nodes_amount, std::vector<long double>(output_nodes_amount, 0));
+        bias_cost_gradient = std::vector<long double>(output_nodes_amount, 0);
         for (uint32_t i = 0; i < input_nodes_amount; ++i)
         {
             weights[i] = std::vector<long double>(output_nodes_amount);
@@ -103,10 +103,11 @@ public:
         for (uint32_t out = 0; out < output_nodes_amount; out++)
         {
             biases[out] -= bias_cost_gradient[out] * parameters.initial_learning_rate;
-
+            bias_cost_gradient[out] = 0;
             for (uint32_t in = 0; in < input_nodes_amount; in++)
             {
                 weights[in][out] -= weight_cost_gradient[in][out] * parameters.initial_learning_rate;
+                weight_cost_gradient[in][out] = 0;
             }
         }
     }
@@ -125,7 +126,6 @@ public:
             }
         }
         update_gradients(out_node_cost_derivatives);
-        apply_gradient_descent();
         return in_node_derivatives;
     }
 

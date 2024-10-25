@@ -30,11 +30,11 @@
 
 struct
 {
-    double initial_learning_rate = 0.02;
+    double initial_learning_rate = 0.05;
 
-    double learn_rate_decay = 0.9995;
-    uint32_t mini_batch_size = 1; // doesn't work
-    double momentum = 0.9;
+    double learn_rate_decay = 0.999995; // for each training data point
+    uint32_t mini_batch_size = 1;
+    double momentum = 0.9; // TBA
     double regularization = 0.1;
     leaky_relu_activation activation;
     // Cost

@@ -84,30 +84,20 @@ public:
                 total_costs += cost_for_training_data_point(output, data[i].expected_output);
                 for (uint32_t o = 0; o < output.size(); ++o)
                 {
-                    next_node_derivatives[o] += node_cost_derivative(output[o], data[i].expected_output[o]);
+                    next_node_derivatives[o] = node_cost_derivative(output[o], data[i].expected_output[o]);
                 }
-            }
-            if (c == mini_batches - 1)
-            {
-                uint32_t last_batch_size = (uint32_t)(data.size()) - (mini_batches - 1) * parameters.mini_batch_size;
-                for (uint32_t o = 0; o < output.size(); ++o)
+
+                for (int l = (int)(layers.size()) - 1; l >= 0; --l)
                 {
-                    next_node_derivatives[o] /= last_batch_size;
+                    next_node_derivatives = layers[l].back_propagation(next_node_derivatives);
                 }
             }
-            else
+            for (uint32_t l = 0; l < layers.size(); ++l)
             {
-                for (uint32_t o = 0; o < output.size(); ++o)
-                {
-                    next_node_derivatives[o] /= parameters.mini_batch_size;
-                }
+                layers[l].apply_gradient_descent();
             }
-            for (int l = (int)(layers.size()) - 1; l >= 0; --l)
-            {
-                next_node_derivatives = layers[l].back_propagation(next_node_derivatives);
-            }
+            parameters.initial_learning_rate *= pow(parameters.learn_rate_decay, parameters.mini_batch_size);
         }
-        parameters.initial_learning_rate *= parameters.learn_rate_decay;
         return total_costs / data.size();
     }
 

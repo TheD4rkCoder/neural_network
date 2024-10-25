@@ -29,7 +29,7 @@ void generage_sin_training_data()
             long double randX = random_ldouble(0, 1);
             long double randY = random_ldouble(0, 1);
             long double expected_output = randY > 0.5 + 0.5 * std::sin(randX * 2 * 3.14);
-            training_data_file << rand << ", " << expected_output << std::endl;
+            training_data_file << randX << ", " << randY << ", " << expected_output << std::endl;
 
             training_data.push_back(TrainingDataPoint({randX, randY}, {expected_output, 1 - expected_output}));
         }
@@ -90,7 +90,7 @@ int main()
     }
     else if (PROBLEM == 1)
     {
-        n = Network(INPUT_NODES_AMOUNT, {7, 2});
+        n = Network(INPUT_NODES_AMOUNT, {7, 13, 17, 9, 2});
     }
 
     generage_sin_training_data();
