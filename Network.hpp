@@ -51,21 +51,20 @@ public:
         }
     }
 
-    void output_network(std::string file)
+    void output_network(std::string file_name)
     {
-        // replace old file (not sure if needed):
-        std::ofstream f(file);
-        f.close();
+        std::ofstream file(file_name, std::ios::app);
 
         for (uint32_t l = 0; l < layers.size(); ++l)
         {
             layers[l].output_layer(file);
         }
+        file.close();
     }
 
     void save_network(std::string file)
     {
-        // TODO?
+        // TODO
     }
 
     // returns average cost
@@ -92,6 +91,8 @@ public:
                     next_node_derivatives = layers[l].back_propagation(next_node_derivatives);
                 }
             }
+
+            output_network("output/network_before.csv");
             for (uint32_t l = 0; l < layers.size(); ++l)
             {
                 layers[l].apply_gradient_descent();

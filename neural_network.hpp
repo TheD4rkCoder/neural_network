@@ -34,8 +34,8 @@ struct
 
     double learn_rate_decay = 0.999995; // for each training data point
     uint32_t mini_batch_size = 1;
-    double momentum = 0.9; // TBA
-    double regularization = 0.1;
+    double momentum_factor = 0.8;
+    double regularization = 0.1; // TBA
     leaky_relu_activation activation;
     // Cost
 } parameters;

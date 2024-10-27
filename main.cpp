@@ -1,4 +1,4 @@
-#pragma GCC optimize("Ofast")
+// #pragma GCC optimize("Ofast")
 #include "neural_network.hpp"
 
 #define TRAINING_DATA_AMOUNT 1024
@@ -90,7 +90,7 @@ int main()
     }
     else if (PROBLEM == 1)
     {
-        n = Network(INPUT_NODES_AMOUNT, {7, 13, 17, 9, 2});
+        n = Network(INPUT_NODES_AMOUNT, {3, 3, 2});
     }
 
     generage_sin_training_data();

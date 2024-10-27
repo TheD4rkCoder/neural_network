@@ -1,10 +1,11 @@
 #include "neural_network.hpp"
+#include <math.h> //temp
 class Layer
 {
 private:
     // Used for adding momentum to gradient descent (not used yet D: )
     std::vector<std::vector<long double>> weight_velocities;
-    std::vector<std::vector<long double>> bias_velocities;
+    std::vector<long double> bias_velocities;
 
     std::vector<long double> last_weighted_inputs;
     std::vector<long double> last_inputs;
@@ -63,16 +64,13 @@ public:
     {
         input_nodes_amount = in_nodes_amount;
         output_nodes_amount = out_nodes_amount;
-        weights = std::vector<std::vector<long double>>(input_nodes_amount);
+        weights = std::vector<std::vector<long double>>(input_nodes_amount, std::vector<long double>(output_nodes_amount));
         biases = std::vector<long double>(output_nodes_amount);
         weight_cost_gradient = std::vector<std::vector<long double>>(input_nodes_amount, std::vector<long double>(output_nodes_amount, 0));
         bias_cost_gradient = std::vector<long double>(output_nodes_amount, 0);
-        for (uint32_t i = 0; i < input_nodes_amount; ++i)
-        {
-            weights[i] = std::vector<long double>(output_nodes_amount);
-            weight_cost_gradient[i] = std::vector<long double>(output_nodes_amount);
-        }
-        last_weighted_inputs = std::vector<long double>(output_nodes_amount);
+        bias_velocities = std::vector<long double>(output_nodes_amount, 0);
+        weight_velocities = std::vector<std::vector<long double>>(input_nodes_amount, std::vector<long double>(output_nodes_amount, 0));
+        last_weighted_inputs = std::vector<long double>(output_nodes_amount, 0);
 
         initialize_with_random_weigths();
     }
@@ -90,6 +88,13 @@ public:
             last_weighted_inputs[out] = biases[out];
             for (uint32_t in = 0; in < input_nodes_amount; ++in)
             {
+                if (isinf(input[in]))
+                {
+                    std::cout << "what tf " << weights[in][out] << '\n';
+                    output_layer();
+                    exit(-1);
+                }
+
                 last_weighted_inputs[out] += weights[in][out] * input[in]; // becomes nan here?
             }
             output[out] = parameters.activation.activate(last_weighted_inputs[out]);
@@ -102,11 +107,15 @@ public:
     {
         for (uint32_t out = 0; out < output_nodes_amount; out++)
         {
-            biases[out] -= bias_cost_gradient[out] * parameters.initial_learning_rate;
+            long double bias_delta = -bias_cost_gradient[out] * parameters.initial_learning_rate + bias_velocities[out] * parameters.momentum_factor;
+            biases[out] += bias_delta;
+            bias_velocities[out] = bias_delta;
             bias_cost_gradient[out] = 0;
             for (uint32_t in = 0; in < input_nodes_amount; in++)
             {
-                weights[in][out] -= weight_cost_gradient[in][out] * parameters.initial_learning_rate;
+                long double weight_delta = -weight_cost_gradient[in][out] * parameters.initial_learning_rate + weight_velocities[in][out] * parameters.momentum_factor;
+                weights[in][out] += weight_delta;
+                weight_velocities[in][out] = weight_delta;
                 weight_cost_gradient[in][out] = 0;
             }
         }
@@ -131,95 +140,92 @@ public:
 
     void output_layer()
     {
-        std::cout << std::endl
-                  << std::endl;
-        std::cout << "input_nodes_amount: " << input_nodes_amount << std::endl;
-        std::cout << "output_nodes_amount: " << output_nodes_amount << std::endl;
-        std::cout << "biases: " << std::endl;
+        std::cout << '\n'
+                  << '\n';
+        std::cout << "input_nodes_amount: " << input_nodes_amount << '\n';
+        std::cout << "output_nodes_amount: " << output_nodes_amount << '\n';
+        std::cout << "biases: " << '\n';
         for (uint32_t out = 0; out < output_nodes_amount; out++)
         {
             std::cout << biases[out] << ",  ";
         }
-        std::cout << std::endl
-                  << std::endl;
+        std::cout << '\n'
+                  << '\n';
 
-        std::cout << "weights: " << std::endl;
+        std::cout << "weights: " << '\n';
         for (uint32_t in = 0; in < input_nodes_amount; in++)
         {
-            std::cout << "from input " << in << ": " << std::endl;
+            std::cout << "from input " << in << ": " << '\n';
             for (uint32_t out = 0; out < output_nodes_amount; out++)
             {
                 std::cout << weights[in][out] << ", ";
             }
-            std::cout << std::endl;
+            std::cout << '\n';
         }
 
-        std::cout << "bias gradient: " << std::endl;
+        std::cout << "bias gradient: " << '\n';
         for (uint32_t out = 0; out < output_nodes_amount; out++)
         {
             std::cout << bias_cost_gradient[out] << ",  ";
         }
-        std::cout << std::endl
-                  << std::endl;
-        std::cout << "weight gradient: " << std::endl;
+        std::cout << '\n'
+                  << '\n';
+        std::cout << "weight gradient: " << '\n';
         for (uint32_t in = 0; in < input_nodes_amount; in++)
         {
-            std::cout << "from input " << in << ": " << std::endl;
+            std::cout << "from input " << in << ": " << '\n';
             for (uint32_t out = 0; out < output_nodes_amount; out++)
             {
                 std::cout << weight_cost_gradient[in][out] << ", ";
             }
-            std::cout << std::endl;
+            std::cout << '\n';
         }
-        std::cout << std::endl
-                  << std::endl;
+        std::cout << '\n'
+                  << '\n';
     }
-    void output_layer(std::string file_name)
+    void output_layer(std::ofstream& file)
     {
-        std::ofstream file(file_name, std::ios::app);
-
-        file << std::endl
-             << std::endl;
-        file << "input_nodes_amount: " << input_nodes_amount << std::endl;
-        file << "output_nodes_amount: " << output_nodes_amount << std::endl;
-        file << "biases: " << std::endl;
+        file << '\n'
+             << '\n';
+        file << "input_nodes_amount: " << input_nodes_amount << '\n';
+        file << "output_nodes_amount: " << output_nodes_amount << '\n';
+        file << "biases: " << '\n';
         for (uint32_t out = 0; out < output_nodes_amount; out++)
         {
             file << biases[out] << ",  ";
         }
-        file << std::endl
-             << std::endl;
+        file << '\n'
+             << '\n';
 
-        file << "weights (1st row = from first input node to output node x ect.): " << std::endl;
+        file << "weights (1st row = from first input node to output node x ect.): " << '\n';
         for (uint32_t in = 0; in < input_nodes_amount; in++)
         {
             for (uint32_t out = 0; out < output_nodes_amount; out++)
             {
                 file << weights[in][out] << ", ";
             }
-            file << std::endl;
+            file << '\n';
         }
 
-        file << std::endl
-             << std::endl;
-        file << "bias gradient: " << std::endl;
+        file << '\n'
+             << '\n';
+        file << "bias gradient: " << '\n';
         for (uint32_t out = 0; out < output_nodes_amount; out++)
         {
             file << bias_cost_gradient[out] << ",  ";
         }
-        file << std::endl
-             << std::endl;
-        file << "weight gradient: " << std::endl;
+        file << '\n'
+             << '\n';
+        file << "weight gradient: " << '\n';
         for (uint32_t in = 0; in < input_nodes_amount; in++)
         {
             for (uint32_t out = 0; out < output_nodes_amount; out++)
             {
                 file << weight_cost_gradient[in][out] << ", ";
             }
-            file << std::endl;
+            file << '\n';
         }
-        file << std::endl
+        file << '\n'
              << std::endl;
-        file.close();
     }
 };
